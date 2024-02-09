@@ -6,9 +6,13 @@ import UpdateForm from "./components/UpdateForm";
 import itemService, { Item } from "./services/item-service";
 import useItems from "./hooks/useItems";
 import InsertForm from "./components/InsertFrom";
+import useString from "./hooks/useString";
+import stringService from "./services/string-service";
 
 function App() {
   const { items, error, isLoading, setItems, setError } = useItems();
+  const { string, strError, strIsLoading, setString, setStrError } =
+    useString();
 
   const deleteItem = (item: Item) => {
     const originalItems = [...items];
@@ -39,6 +43,21 @@ function App() {
       .catch((err) => {
         setError(err.message);
         setItems([...originalItems]);
+      });
+  };
+
+  const addToString = (newString: string) => {
+    const originalString = [...string];
+    setString([string[0] + "__" + newString]);
+
+    stringService
+      .create({ str: newString })
+      .then(() => {
+        setString([string[0] + "__" + newString]);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setString([...originalString]);
       });
   };
 
@@ -90,10 +109,23 @@ function App() {
        * Display error
        * Text should have it's own route and service
        */}
+      {strError && <p className="text-danger">{strError}</p>}
+      {strIsLoading && <div className="spinner-border"></div>}
+      {string[0] && <p className="text-danger">{string[0]}</p>}
+
       {/**EXERCISE: Create a button that will add to the aforementioned text from the server. The follow aspects are required:
        * Should revert to original content in the case of an error
        * Server should have it's own route and associated logic
        */}
+      <br />
+      <Button
+        color="danger"
+        onClick={() => {
+          addToString("SPAM");
+        }}
+      >
+        ADD SPAM
+      </Button>
       {/**EXERCISE: Create a button that will remove the first character from the aforementioned text from the server. The follow aspects are required:
        * Should revert to original content in the case of an error
        * Server should have it's own route and associated logic
